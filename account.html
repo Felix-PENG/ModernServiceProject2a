@@ -1,0 +1,46 @@
+<html>
+<head>
+    <title>Account Info</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <style>
+    	html, body{
+			width: 100%;
+			height:100%;
+		}
+    </style>
+</head>
+
+<body> 
+	<div style="margin: 2% 5%">
+		<h3>Account Information</h3>
+		<div>
+			<h4>Email:</h4>
+			<p id="myEmail"></p>
+		</div>
+		<div>
+			<h4>Username:</h4>
+			<p id="myUsername"></p>
+		</div>
+		<div>
+			<h4>Balance:</h4>
+			<p id="balance"></p>
+		</div>
+		<div>
+			<h4>Orders:</h4>
+			<p id="history"><a>Link to my payment history</a></p>
+		</div>
+		
+		<a class="btn btn-primary btn-lg" href="list.html" role="button">Back to main page</a>
+	</div>
+   	<script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+   	<script type="text/javascript" src="js/index.js"></script>
+   	<script type="text/javascript">
+   		var data = sessionStorage.getItem('accountInfo');
+   		var accountInfo = JSON.parse(data);
+  
+   		$("#myEmail").text(accountInfo['email']);
+   		$("#myUsername").text(accountInfo['username']);
+   		$("#balance").text(accountInfo['balance']);
+   	</script>
+</body>
+</html>

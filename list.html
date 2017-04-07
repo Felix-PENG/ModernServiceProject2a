@@ -1,0 +1,204 @@
+<html>
+<head>
+    <title>CU Store</title>
+    <link rel="stylesheet" type="text/css" href="css/bootstrap.min.css" />
+    <style>
+    html,body {
+        width: 100%;
+        height: 100%;
+    }
+    a{
+        cursor: pointer;
+    }
+    label{
+        font-weight: normal;
+    }
+    /**
+     * The CSS shown here will not be introduced in the Quickstart guide, but shows
+     * how you can use CSS to style your Element's container.
+     */
+    .StripeElement {
+      background-color: white;
+      padding: 8px 12px;
+      border-radius: 4px;
+      border: 1px solid transparent;
+      box-shadow: 0 1px 3px 0 #e6ebf1;
+      -webkit-transition: box-shadow 150ms ease;
+      transition: box-shadow 150ms ease;
+    }
+
+    .StripeElement--focus {
+      box-shadow: 0 1px 3px 0 #cfd7df;
+    }
+
+    .StripeElement--invalid {
+      border-color: #fa755a;
+    }
+
+    .StripeElement--webkit-autofill {
+      background-color: #fefde5 !important;
+    }
+    </style>
+</head>
+
+<body> 
+    <div id="transaction" class="modal fade">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Payment</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+          <div class="modal-body">
+            You want to buy <label style="font-weight: bold" id="productName"></label>?
+            <form method="post" id="payment-form">
+              <div class="form-row">
+                <label for="card-element">
+                  Credit or debit card
+                </label>
+                <div id="card-element">
+                  <!-- a Stripe Element will be inserted here. -->
+                </div>
+
+                <!-- Used to display form errors -->
+                <div id="card-errors"></div>
+              </div>
+              <input type="hidden" name="chargeAmount" id="chargeAmount_modal" value="">
+              <input type="hidden" name="description" id="description_modal" value="">
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 2%">Submit Payment</button>
+              <button type="button" class="btn btn-default" style="margin-top: 2%" data-dismiss="modal">Close</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="form-group">
+      <div style="margin: 2% 5%">
+        <a class="btn btn-primary btn-lg" id="history" role="button">Payment history</a>
+        <a class="btn btn-primary btn-lg" id="account" role="button">Account</a>
+      </div>
+    </div>
+    <h3 id="type" style="margin:5% 5% 2%">Things you can buy</h3>
+    <div style="width:100%">
+        <div style="border:1px solid #EFEFEF;margin: 1% 5%;">
+            <div style="width:190px;height:170px;display:inline-block;vertical-align:top">
+                <img src="image/macbook.png" style="width: 100%;height: 100%">
+            </div>
+            <div style="width:calc(90% - 200px);display:inline-block;margin-left: 2%;margin-top:1%">
+                <p style="font-weight: bold;">Macbook</p>
+                <label style="color: #CABBBB">512GB PCIe-based onboard flash storage / 1.2GHz dual-core / Intel Core m5 processor / Turbo Boost up to 2.7GHz / 8GB memory / Intel HD Graphics 515</label>
+                <button class="btn btn-primary purchase" description="Macbook" chargeAmount="159900">Purchase</button>
+            </div>
+        </div>
+
+        <div style="border:1px solid #EFEFEF;margin: 1% 5%;">
+            <div style="width:190px;height:170px;display:inline-block;vertical-align:top">
+                <img src="image/ipad.png" style="width: 100%;height: 100%">
+            </div>
+            <div style="width:calc(90% - 200px);display:inline-block;margin-left: 2%;margin-top:1%">
+                <p style="font-weight: bold;">iPad</p>
+                <label style="color: #CABBBB">12.9-inch (diagonal) LED-backlit Multi-Touch display ／ 2732-by-2048 resolution at 264 pixels per inch (ppi) ／ Fingerprint-resistant oleophobic coating ／ Fully laminated display ／ Antireflective coating</label>
+                <button class="btn btn-primary purchase" description="iPad" chargeAmount="99900">Purchase</button>
+            </div>
+        </div>
+
+        <div style="border:1px solid #EFEFEF;margin: 1% 5%;">
+            <div style="width:190px;height:170px;display:inline-block;vertical-align:top">
+                <img src="image/iphone.png" style="width: 100%;height: 100%">
+            </div>
+            <div style="width:calc(90% - 200px);display:inline-block;margin-left: 2%;margin-top:1%">
+                <p style="font-weight: bold;">iPhone</p>
+                <label style="color: #CABBBB">6.63 ounces / Retina HD display / 12MP wide-angle and telephoto cameras / Fingerprint sensor built into the new Home button</label>
+                <button class="btn btn-primary purchase" description="iPhone" chargeAmount="86900">Purchase</button>
+            </div>
+        </div>        
+    </div>
+    <script type="text/javascript" src="js/jquery-3.1.1.min.js"></script>
+    <script type="text/javascript" src="js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="js/index.js"></script>
+    <script src="https://js.stripe.com/v3/"></script>
+
+    <script type="text/javascript">
+        // Create a Stripe client
+        var stripe = Stripe('pk_test_1zX2sGaxbQYs7Ke0IpcCan3V');
+
+        // Create an instance of Elements
+        var elements = stripe.elements();
+
+        // Custom styling can be passed to options when creating an Element.
+        // (Note that this demo uses a wider set of styles than the guide below.)
+        var style = {
+          base: {
+            color: '#32325d',
+            lineHeight: '24px',
+            fontFamily: '"Helvetica Neue", Helvetica, sans-serif',
+            fontSmoothing: 'antialiased',
+            fontSize: '16px',
+            '::placeholder': {
+              color: '#aab7c4'
+            }
+          },
+          invalid: {
+            color: '#fa755a',
+            iconColor: '#fa755a'
+          }
+        };
+
+        // Create an instance of the card Element
+        var card = elements.create('card', {style: style});
+
+        // Add an instance of the card Element into the `card-element` <div>
+        card.mount('#card-element');
+
+        // Handle real-time validation errors from the card Element.
+        card.addEventListener('change', function(event) {
+          var displayError = $('#card-errors');
+          if (event.error) {
+            displayError.textContent = event.error.message;
+          } else {
+            displayError.textContent = '';
+          }
+        });
+        
+        $("#payment-form").submit(function(event){
+            event.preventDefault();
+            var formData = $(this).serializeArray();
+
+            stripe.createToken(card).then(function(result) {
+                if (result.error) {
+                  // Inform the user if there was an error
+                  var errorElement = document.getElementById('card-errors');
+                  errorElement.textContent = result.error.message;
+                } else {
+                  // Send the token to your server
+                  // Insert the token ID into the form so it gets submitted to the server
+                  var jsonData = {};
+                  for(var i = 0;i < formData.length; i++){
+                    jsonData[formData[i]['name']] = formData[i]['value'];
+                  }
+                  jsonData['operation'] = 'pay';
+                  jsonData['userToken'] = getCookie('userToken');
+                  jsonData['stripeToken'] = result.token.id;
+                  $.ajax({
+                    url:"https://sktes2qcoc.execute-api.us-east-1.amazonaws.com/modernservice/orchestrator",
+                    type:"POST",
+                    data: JSON.stringify(jsonData),
+                    crossDomain: true,
+                    contentType:"application/json; charset=utf-8",
+                    dataType:"json",
+                    success: function(data){
+                        var res = JSON.parse(data);
+                        if(res['statusCode'] == 200){
+                            window.location.href = "paySuccess.html";
+                        }
+                    }
+                  });
+                }
+            });
+        });
+    </script>
+</body>
+</html>
